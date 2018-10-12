@@ -1,8 +1,11 @@
-FROM node:boron
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-COPY package.json /usr/src/app/
-RUN npm install
-COPY . /usr/src/app
+FROM node:8.12.0-alpine
+WORKDIR /app
+COPY package.json .
+RUN set -x; \
+    apk add --no-cache -t deps git python make g++ bash \
+    && npm install \
+    && apk del deps
+COPY . .
 EXPOSE 3080
-CMD [ "npm", "run", "express" ]
+USER node
+CMD [ "node", "bin/bitgo-express", "--port", "3080", "--bind", "0.0.0.0", "--debug"]
